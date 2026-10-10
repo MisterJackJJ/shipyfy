@@ -8,14 +8,19 @@ public class BoardTest {
         Board board = new Board(10, 10);
 
         // Platzierung
-        Ship ship = new Ship(0, 0, Direction.HORIZONTAL, 3);
+        Ship ship = new Ship(0, 0, Direction.HORIZONTAL, 3, 10, 10);
         assert board.placeShip(ship) : "Schiff muss platzierbar sein";
-        assert !board.placeShip(new Ship(0, 1, Direction.VERTICAL, 4))
+        assert !board.placeShip(new Ship(0, 1, Direction.VERTICAL, 4, 10, 10))
                 : "Kollidierendes Schiff darf nicht platziert werden";
-        assert !board.placeShip(new Ship(9, 9, Direction.VERTICAL, 3))
-                : "Schiff außerhalb des Felds darf nicht platziert werden";
 
-        // Treffer über die verkettete Liste
+        // Herausragendes Schiff wirft bereits im Konstruktor
+        try {
+            new Ship(9, 9, Direction.VERTICAL, 3, 10, 10);
+            assert false : "Herausragendes Schiff muss eine Exception werfen";
+        } catch (IllegalArgumentException expected) {
+        }
+
+        // Treffer in den Schiffsfeldern
         assert board.shoot(0, 0) : "Treffer erwartet";
         assert !ship.isSunk() : "Schiff darf noch nicht versenkt sein";
         assert !board.shoot(5, 5) : "Fehlschuss erwartet";

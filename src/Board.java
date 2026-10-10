@@ -47,15 +47,12 @@ public class Board {
     }
 
     /**
-     * Platziert ein Schiff, sofern die Position gültig ist und keine
-     * Kollision mit einem bestehenden Schiff vorliegt.
+     * Platziert ein Schiff, sofern keine Kollision mit einem
+     * bestehenden Schiff vorliegt.
      *
      * @return true, wenn das Schiff platziert wurde
      */
     public boolean placeShip(Ship ship) {
-        if (!isValidPlacement(ship)) {
-            return false;
-        }
         for (Ship other : ships) {
             if (ship.collidesWith(other)) {
                 return false;
@@ -63,17 +60,6 @@ public class Board {
         }
         ships.add(ship);
         markShipOnGrid(ship);
-        return true;
-    }
-
-    private boolean isValidPlacement(Ship ship) {
-        for (int i = 0; i < ship.getSize(); i++) {
-            ShipPart part = ship.getPart(i);
-            if (part.getX() < 0 || part.getX() >= rows
-                    || part.getY() < 0 || part.getY() >= cols) {
-                return false;
-            }
-        }
         return true;
     }
 

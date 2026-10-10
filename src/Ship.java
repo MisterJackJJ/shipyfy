@@ -10,16 +10,26 @@ public class Ship {
 
     /**
      * Erstellt ein Schiff ab Position (x, y) in Richtung direction
-     * mit size Feldern.
+     * mit size Feldern. Das Schiff muss vollständig innerhalb des
+     * Spielfelds liegen, sonst wird eine Exception geworfen.
      *
      * @param x         Startzeile
      * @param y         Startspalte
      * @param direction Direction.HORIZONTAL oder Direction.VERTICAL
      * @param size      Anzahl der Felder
+     * @param rows      Höhe des Spielfelds
+     * @param cols      Breite des Spielfelds
      */
-    public Ship(int x, int y, Direction direction, int size) {
+    public Ship(int x, int y, Direction direction, int size, int rows, int cols) {
         if (size <= 0) {
             throw new IllegalArgumentException("Schiff muss mindestens ein Feld haben.");
+        }
+        int endX = direction == Direction.VERTICAL ? x + size - 1 : x;
+        int endY = direction == Direction.HORIZONTAL ? y + size - 1 : y;
+        if (x < 0 || y < 0 || endX >= rows || endY >= cols) {
+            throw new IllegalArgumentException(
+                    "Schiff ragt über das Spielfeld hinaus: (" + x + "," + y + ") "
+                    + direction + ", Größe " + size);
         }
         this.parts = new ShipPart[size];
         for (int i = 0; i < size; i++) {
