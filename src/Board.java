@@ -67,24 +67,18 @@ public class Board {
     }
 
     private boolean isValidPlacement(Ship ship) {
-        ShipPart current = ship.getHead();
-        while (current != null) {
-            int x = current.getX();
-            int y = current.getY();
-            if (x < 0 || x >= rows || y < 0 || y >= cols) {
-                return false;
+        final boolean[] valid = {true};
+        ship.forEachPart(part -> {
+            if (part.getX() < 0 || part.getX() >= rows
+                    || part.getY() < 0 || part.getY() >= cols) {
+                valid[0] = false;
             }
-            current = current.getNext();
-        }
-        return true;
+        });
+        return valid[0];
     }
 
     private void markShipOnGrid(Ship ship) {
-        ShipPart current = ship.getHead();
-        while (current != null) {
-            grid[current.getX()][current.getY()] = Cell.SHIP;
-            current = current.getNext();
-        }
+        ship.forEachPart(part -> grid[part.getX()][part.getY()] = Cell.SHIP);
     }
 
     /**
