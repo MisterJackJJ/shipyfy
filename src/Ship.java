@@ -34,12 +34,10 @@ public class Ship {
     }
 
     /**
-     * Trifft für jedes Feld des Schiffs die übergebene Aktion.
+     * Gibt das Feld des Schiffs am Index index zurück.
      */
-    public void forEachPart(java.util.function.Consumer<ShipPart> action) {
-        for (ShipPart part : parts) {
-            action.accept(part);
-        }
+    public ShipPart getPart(int index) {
+        return parts[index];
     }
 
     /**

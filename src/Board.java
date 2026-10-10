@@ -67,18 +67,21 @@ public class Board {
     }
 
     private boolean isValidPlacement(Ship ship) {
-        final boolean[] valid = {true};
-        ship.forEachPart(part -> {
+        for (int i = 0; i < ship.getSize(); i++) {
+            ShipPart part = ship.getPart(i);
             if (part.getX() < 0 || part.getX() >= rows
                     || part.getY() < 0 || part.getY() >= cols) {
-                valid[0] = false;
+                return false;
             }
-        });
-        return valid[0];
+        }
+        return true;
     }
 
     private void markShipOnGrid(Ship ship) {
-        ship.forEachPart(part -> grid[part.getX()][part.getY()] = Cell.SHIP);
+        for (int i = 0; i < ship.getSize(); i++) {
+            ShipPart part = ship.getPart(i);
+            grid[part.getX()][part.getY()] = Cell.SHIP;
+        }
     }
 
     /**
@@ -108,7 +111,10 @@ public class Board {
      * Markiert alle Felder eines versenkten Schiffs als SUNK.
      */
     private void markSunk(Ship ship) {
-        ship.forEachPart(part -> grid[part.getX()][part.getY()] = Cell.SUNK);
+        for (int i = 0; i < ship.getSize(); i++) {
+            ShipPart part = ship.getPart(i);
+            grid[part.getX()][part.getY()] = Cell.SUNK;
+        }
     }
 
     /**
