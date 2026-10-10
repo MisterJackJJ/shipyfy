@@ -1,39 +1,28 @@
 /**
- * Das Spielfeld als 2D-Array. Es verwaltet die platzierten Schiffe
- * und leitet Beschüsse an das jeweilige Schiff weiter.
+ * Das Modell des Spiels: verwaltet die platzierten Schiffe und das
+ * Spielfeldraster (Grid) und leitet Beschüsse an das jeweilige
+ * Schiff weiter.
  */
-public class Board {
+public class Model {
 
-    private final int rows;
-    private final int cols;
-    private final Cell[][] grid;
+    private final Grid grid;
     private final java.util.List<Ship> ships;
 
-    public Board(int rows, int cols) {
-        if (rows <= 0 || cols <= 0) {
-            throw new IllegalArgumentException("Spielfeldmaße müssen positiv sein.");
-        }
-        this.rows = rows;
-        this.cols = cols;
-        this.grid = new Cell[rows][cols];
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                grid[i][j] = Cell.WATER;
-            }
-        }
+    public Model(int rows, int cols) {
+        this.grid = new Grid(rows, cols);
         this.ships = new java.util.ArrayList<>();
     }
 
     public int getRows() {
-        return rows;
+        return grid.getRows();
     }
 
     public int getCols() {
-        return cols;
+        return grid.getCols();
     }
 
     public Cell getCell(int x, int y) {
-        return grid[x][y];
+        return grid.getCell(x, y);
     }
 
     /**
@@ -43,7 +32,7 @@ public class Board {
     public boolean isValidPlacement(int x, int y, Direction direction, int size) {
         int endX = direction == Direction.VERTICAL ? x + size - 1 : x;
         int endY = direction == Direction.HORIZONTAL ? y + size - 1 : y;
-        return x >= 0 && y >= 0 && endX < rows && endY < cols;
+        return x >= 0 && y >= 0 && endX < getRows() && endY < getCols();
     }
 
     /**
@@ -66,7 +55,7 @@ public class Board {
     private void markShipOnGrid(Ship ship) {
         for (int i = 0; i < ship.getSize(); i++) {
             ShipPart part = ship.getPart(i);
-            grid[part.getX()][part.getY()] = Cell.SHIP;
+            grid.setCell(part.getX(), part.getY(), Cell.SHIP);
         }
     }
 
@@ -76,7 +65,7 @@ public class Board {
      * @return true bei Treffer, false bei Fehlschuss
      */
     public boolean shoot(int x, int y) {
-        if (x < 0 || x >= rows || y < 0 || y >= cols) {
+        if (!grid.isInBounds(x, y)) {
             return false;
         }
         for (Ship ship : ships) {
@@ -84,12 +73,12 @@ public class Board {
                 if (ship.isSunk()) {
                     markSunk(ship);
                 } else {
-                    grid[x][y] = Cell.HIT;
+                    grid.setCell(x, y, Cell.HIT);
                 }
                 return true;
             }
         }
-        grid[x][y] = Cell.MISS;
+        grid.setCell(x, y, Cell.MISS);
         return false;
     }
 
@@ -99,12 +88,12 @@ public class Board {
     private void markSunk(Ship ship) {
         for (int i = 0; i < ship.getSize(); i++) {
             ShipPart part = ship.getPart(i);
-            grid[part.getX()][part.getY()] = Cell.SUNK;
+            grid.setCell(part.getX(), part.getY(), Cell.SUNK);
         }
     }
 
     /**
-     * Prüft, ob an Position (x, y) ein (nicht versenktes) Schiff liegt.
+     * Prüft, ob an Position (x, y) ein Schiff liegt.
      */
     public boolean hasShipAt(int x, int y) {
         for (Ship ship : ships) {

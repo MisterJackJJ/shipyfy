@@ -22,14 +22,14 @@ public class Main {
         }
 
         System.out.println("\nSpielfeld nach Platzierung:");
-        game.showBoard();
+        game.showField();
 
         game.shoot(2, 3);
         game.shoot(2, 4);
         game.shoot(2, 5);
 
         System.out.println("\nSpielfeld nach Beschuss:");
-        game.showBoard();
+        game.showField();
         System.out.println("Spiel beendet: " + game.isGameOver());
     }
 }

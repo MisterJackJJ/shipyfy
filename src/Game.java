@@ -1,16 +1,16 @@
 /**
- * Der Spielablauf: hält das Modell (Board mit Schiffen) und nimmt
+ * Der Spielablauf: hält das Modell (Model mit Schiffen) und nimmt
  * die Befehle entgegen, die bisher direkt in Main standen –
  * Platzieren, Schießen, Ausgeben, Spielende-Prüfung.
  */
 public class Game {
 
-    private final Board board;
-    private final BoardView view;
+    private final Model model;
+    private final ModelView view;
 
     public Game(int rows, int cols) {
-        this.board = new Board(rows, cols);
-        this.view = new BoardView();
+        this.model = new Model(rows, cols);
+        this.view = new ModelView();
     }
 
     /**
@@ -19,7 +19,7 @@ public class Game {
      * @return true, wenn die Platzierung gültig war
      */
     public boolean placeShip(Ship ship) {
-        return board.placeShip(ship);
+        return model.placeShip(ship);
     }
 
     /**
@@ -28,7 +28,7 @@ public class Game {
      * @return true bei Treffer
      */
     public boolean shoot(int x, int y) {
-        boolean hit = board.shoot(x, y);
+        boolean hit = model.shoot(x, y);
         System.out.println("Schuss auf (" + x + "," + y + "): "
                 + (hit ? "Treffer" : "Fehlschuss"));
         return hit;
@@ -37,14 +37,14 @@ public class Game {
     /**
      * Zeigt das aktuelle Spielfeld an.
      */
-    public void showBoard() {
-        view.print(board);
+    public void showField() {
+        view.print(model);
     }
 
     /**
      * Prüft, ob alle Schiffe versenkt sind.
      */
     public boolean isGameOver() {
-        return board.allShipsSunk();
+        return model.allShipsSunk();
     }
 }
