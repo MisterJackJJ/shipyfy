@@ -1,12 +1,12 @@
 /**
- * Zellzustände des Spielfelds mit zugehörigem Anzeigesymbol.
+ * Zellzustände des Spielfelds mit zugehörigem Anzeigesymbol (Unicode).
  */
 public enum Cell {
-    WATER('w'),
-    SHIP('s'),
-    HIT('x'),
-    MISS('o'),
-    SUNK('#');
+    WATER('≈'),
+    SHIP('⛵'),
+    HIT('💥'),
+    MISS('•'),
+    SUNK('☠');
 
     private final char symbol;
 
