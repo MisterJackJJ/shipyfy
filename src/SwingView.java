@@ -42,9 +42,22 @@ public class SwingView {
         void onCellClick(int x, int y);
     }
 
+    /** Sichtweise auf ein Brett: Besitzer sieht Schiffe, Gegner nicht. */
+    public enum Sight {
+        OWNER,
+        OPPONENT
+    }
+
+    private final Sight sight;
+
     public SwingView(Model model, CellClickListener listener) {
+        this(model, listener, Sight.OWNER);
+    }
+
+    public SwingView(Model model, CellClickListener listener, Sight sight) {
         this.model = model;
         this.listener = listener;
+        this.sight = sight;
         this.buttons = new JButton[model.getRows()][model.getCols()];
         this.iconsAvailable = iconsExist();
 
@@ -93,7 +106,7 @@ public class SwingView {
     public void refresh() {
         for (int i = 0; i < model.getRows(); i++) {
             for (int j = 0; j < model.getCols(); j++) {
-                Cell cell = model.getCell(i, j);
+                Cell cell = visibleCell(model.getCell(i, j));
                 if (iconsAvailable) {
                     buttons[i][j].setIcon(iconFor(cell, loopFrame));
                 } else {
@@ -101,6 +114,19 @@ public class SwingView {
                 }
             }
         }
+    }
+
+    /**
+     * Übersetzt eine Modell-Zelle in die angezeigte Zelle:
+     * In der OPPONENT-Sicht werden intakte Schiffe (SHIP) als Wasser
+     * (WATER) dargestellt, damit der Gegner die Flotte nicht sieht.
+     * Treffer, Fehlschüsse und versenkte Schiffe bleiben sichtbar.
+     */
+    private Cell visibleCell(Cell cell) {
+        if (sight == Sight.OPPONENT && cell == Cell.SHIP) {
+            return Cell.WATER;
+        }
+        return cell;
     }
 
     /**

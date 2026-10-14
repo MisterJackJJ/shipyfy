@@ -1,43 +1,92 @@
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Der Spielablauf: hält das Modell (Model mit Schiffen) und die Views
- * (Konsole und optional JFrame) und nimmt die Befehle entgegen –
- * Platzieren, Schießen, Ausgeben, Spielende-Prüfung.
+ * Der Spielablauf: verwaltet die Spieler, den Zugwechsel und die Views.
+ *
+ * Verantwortungs-Trennung:
+ * - Player besitzt sein Spielfeld (Model) mit seinen Schiffen.
+ * - Model kennt die Regeln für EIN Feld (shoot, placeShip, allShipsSunk).
+ * - Game vermittelt: Wer ist dran? Auf wen wird geschossen? Wann ist
+ *   der Zug vorbei (Fehlschuss) und wann das Spiel beendet?
  */
 public class Game {
 
-    private final Model model;
+    private final List<Player> players = new ArrayList<>();
+    private int rows;
+    private int cols;
+    private int currentPlayerIndex = 0;
     private final ModelView view;
     private SwingView swingView;
 
+    /**
+     * Spielfeldgröße (für später hinzugefügte Spieler).
+     */
     public Game(int rows, int cols) {
-        this.model = new Model(rows, cols);
+        this.rows = rows;
+        this.cols = cols;
         this.view = new ModelView();
     }
 
     /**
-     * Platziert ein Schiff auf dem Spielfeld.
-     *
-     * @return true, wenn die Platzierung gültig war
+     * Nimmt einen Spieler ins Spiel auf.
      */
-    public boolean placeShip(Ship ship) {
-        return model.placeShip(ship);
+    public void addPlayer(Player player) {
+        players.add(player);
     }
 
     /**
-     * Beschreibt ein Feld, aktualisiert beide Views und gibt das
-     * Ergebnis auf der Konsole aus.
+     * Der Spieler, der gerade am Zug ist.
+     */
+    public Player getCurrentPlayer() {
+        return players.get(currentPlayerIndex);
+    }
+
+    /**
+     * Wechselt zum nächsten Spieler (bei Fehlschuss).
+     */
+    private void nextTurn() {
+        currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+    }
+
+    /**
+     * Der Gegner des aktuell Spielenden (bei zwei Spielern der andere,
+     * bei mehreren der nächste in der Runde).
+     */
+    public Player getTarget() {
+        int targetIndex = (currentPlayerIndex + 1) % players.size();
+        return players.get(targetIndex);
+    }
+
+    /**
+     * Platziert ein Schiff auf dem Spielfeld des angegebenen Spielers.
+     *
+     * @return true, wenn die Platzierung gültig war
+     */
+    public boolean placeShip(Player owner, Ship ship) {
+        return owner.getBoard().placeShip(ship);
+    }
+
+    /**
+     * Der aktuelle Spieler schießt auf das Feld des Gegners.
+     * Treffer = weiter am Zug (klassische Regel), Fehlschuss = Zugwechsel.
      *
      * @return true bei Treffer
      */
     public boolean shoot(int x, int y) {
-        boolean hit = model.shoot(x, y);
-        System.out.println("Schuss auf (" + x + "," + y + "): "
+        Player shooter = getCurrentPlayer();
+        Player target = getTarget();
+        boolean hit = target.getBoard().shoot(x, y);
+        System.out.println(shooter.getName() + " schießt auf (" + x + "," + y + "): "
                 + (hit ? "Treffer" : "Fehlschuss"));
         if (swingView != null) {
             swingView.refresh();
             if (hit) {
-                swingView.playOnce(hitCellAt(x, y));
+                swingView.playOnce(hitCellAt(target, x, y));
             }
+        }
+        if (!hit) {
+            nextTurn();
         }
         return hit;
     }
@@ -47,30 +96,45 @@ public class Game {
      * (HIT für Teiltreffer, SUNK für versenkt) – entscheidet über die
      * abzuspielende Animation.
      */
-    private Cell hitCellAt(int x, int y) {
-        return model.getCell(x, y);
+    private Cell hitCellAt(Player target, int x, int y) {
+        return target.getBoard().getCell(x, y);
     }
 
     /**
-     * Zeigt das aktuelle Spielfeld auf der Konsole an.
+     * Zeigt das Spielfeld eines Spielers auf der Konsole an.
+     */
+    public void showField(Player player) {
+        view.print(player.getBoard());
+    }
+
+    /**
+     * Zeigt das Spielfeld des Spielers, auf den gerade geschossen wird.
      */
     public void showField() {
-        view.print(model);
+        view.print(getTarget().getBoard());
     }
 
     /**
-     * Öffnet zusätzlich die grafische Ansicht. Klicks auf Zellen
-     * werden als Schuss interpretiert.
+     * Öffnet die grafische Ansicht des Bretts, auf das der aktuelle
+     * Spieler schießt (Gegner-Sicht: Schiffe bleiben verborgen).
+     * Klick auf eine Zelle = Schuss.
      */
     public void showSwingView() {
-        this.swingView = new SwingView(model, this::shoot);
+        this.swingView = new SwingView(getTarget().getBoard(), this::shoot,
+                SwingView.Sight.OPPONENT);
         this.swingView.show();
     }
 
     /**
-     * Prüft, ob alle Schiffe versenkt sind.
+     * Prüft, ob alle Schiffe irgendeines Spielers versenkt sind
+     * (dann hat der andere gewonnen).
      */
     public boolean isGameOver() {
-        return model.allShipsSunk();
+        for (Player player : players) {
+            if (player.getBoard().allShipsSunk()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
