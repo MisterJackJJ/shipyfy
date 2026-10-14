@@ -1,6 +1,7 @@
 /**
- * Einstiegspunkt: erzeugt ein Spiel und stößt die Demo an.
- * Die eigentliche Logik liegt in Game.
+ * Einstiegspunkt: erzeugt ein Spiel, platziert Demo-Schiffe und öffnet
+ * die grafische Ansicht. Schüsse erfolgen per Klick auf eine Zelle;
+ * parallel läuft die Konsole-Ausgabe mit.
  */
 public class Main {
 
@@ -13,23 +14,10 @@ public class Main {
         System.out.println("Zerstörer platziert: " + game.placeShip(destroyer));
         System.out.println("Kreuzer platziert: " + game.placeShip(cruiser));
 
-        System.out.println("\nVersuch eines ungültigen Schiffs (ragt heraus):");
-        try {
-            new Ship(8, 8, Direction.HORIZONTAL, 5, 10, 10);
-            System.out.println("Unerwartet: Schiff wurde erzeugt!");
-        } catch (IllegalArgumentException e) {
-            System.out.println("Erwartete Exception: " + e.getMessage());
-        }
-
-        System.out.println("\nSpielfeld nach Platzierung:");
+        System.out.println("\nKonsole-Ansicht nach Platzierung:");
         game.showField();
 
-        game.shoot(2, 3);
-        game.shoot(2, 4);
-        game.shoot(2, 5);
-
-        System.out.println("\nSpielfeld nach Beschuss:");
-        game.showField();
-        System.out.println("Spiel beendet: " + game.isGameOver());
+        // Grafische Ansicht öffnen: Klick auf eine Zelle = Schuss
+        game.showSwingView();
     }
 }

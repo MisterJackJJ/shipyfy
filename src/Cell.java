@@ -2,10 +2,10 @@
  * Zellzustände des Spielfelds mit zugehörigem Anzeigesymbol (Unicode)
  * und Bild-Dateinamen für die grafische Ansicht.
  *
- * Bild-Konvention:
- * - Statisches Icon:  resources/&lt;name&gt;.png   (z. B. resources/water.png)
- * - Animations-Frames: resources/&lt;name&gt;_0.png, _1.png, ... (z. B. water_0.png)
- *   Ein Frame reicht für eine Zelle: frameCount &gt;= 2 bedeutet Animation.
+ * Bild-Konvention (Dateien im Verzeichnis resources/):
+ * - Statisches Icon:  NAME_00.png (z. B. SHIP_00.png)
+ * - Animations-Frames: NAME_00.png, NAME_01.png, ... (z. B. WATER_00..05.png)
+ *   frameCount >= 2 bedeutet Animation.
  */
 public enum Cell {
     WATER("water", 6),
@@ -55,13 +55,11 @@ public enum Cell {
 
     /**
      * Dateiname des Frames (Frame 0 bei statischen Zellen),
-     * z. B. "water_0.png" oder "ship.png" wenn frameCount == 1.
+     * z. B. "SHIP_00.png" bzw. "WATER_03.png" für Frame 3.
      */
     public String getFrameFile(int frame) {
-        if (frameCount == 1) {
-            return imageName + ".png";
-        }
-        return imageName + "_" + frame + ".png";
+        return imageName.toUpperCase() + "_"
+                + String.format("%02d", frame) + ".png";
     }
 
     /**
