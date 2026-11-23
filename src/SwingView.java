@@ -142,7 +142,7 @@ public class SwingView {
             Timer t = new Timer(ANIM_DELAY_MS * (f + 1), e -> {
                 for (int i = 0; i < model.getRows(); i++) {
                     for (int j = 0; j < model.getCols(); j++) {
-                        if (model.getCell(i, j) == cell) {
+                        if (visibleCell(model.getCell(i, j)) == cell) {
                             buttons[i][j].setIcon(iconFor(cell, frameIndex));
                         }
                     }
@@ -189,7 +189,10 @@ public class SwingView {
             loopFrame++;
             for (int i = 0; i < model.getRows(); i++) {
                 for (int j = 0; j < model.getCols(); j++) {
-                    Cell cell = model.getCell(i, j);
+                    // Sicht-Übersetzung auch hier: getarnte Schiffe (SHIP)
+                    // werden in der Gegner-Sicht als Wasser animiert,
+                    // sonst würden eingefrorene Zellen die Position verraten.
+                    Cell cell = visibleCell(model.getCell(i, j));
                     if (cell.isAnimated()) {
                         buttons[i][j].setIcon(iconFor(cell, loopFrame));
                     }
