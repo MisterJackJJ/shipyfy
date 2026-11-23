@@ -154,10 +154,24 @@ public class SwingView {
     }
 
     /**
-     * Lädt das Icon für eine Zelle (mit Caching) oder null, wenn nicht vorhanden.
+     * Lädt das Icon für eine Zelle (mit Caching). Fehlt der angeforderte
+     * Frame, wird auf Frame 0 (das erste vorhandene Bild) zurückgefallen,
+     * damit nie ein leerer Button entsteht.
      */
     private ImageIcon iconFor(Cell cell, int frame) {
-        String file = cell.getFrameFile(frame % cell.getFrameCount());
+        int index = frame % cell.getFrameCount();
+        ImageIcon icon = loadIcon(cell.getFrameFile(index));
+        if (icon == null && index != 0) {
+            icon = loadIcon(cell.getFrameFile(0));
+        }
+        return icon;
+    }
+
+    /**
+     * Lädt eine Bilddatei aus resources/ (mit Caching) oder null,
+     * wenn sie nicht existiert.
+     */
+    private ImageIcon loadIcon(String file) {
         return iconCache.computeIfAbsent(file, f -> {
             java.net.URL url = getClass().getClassLoader().getResource(RESOURCE_DIR + f);
             if (url == null) {
